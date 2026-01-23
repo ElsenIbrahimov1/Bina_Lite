@@ -1,0 +1,23 @@
+﻿using Domain.Entities.Common;
+using Domain.Enums;
+
+namespace Domain.Entities;
+
+public class PropertyAd : BaseEntity
+{
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+
+    public ICollection<PropertyMedia> Media { get; set; } = [];
+
+    public bool IsMortgage { get; set; }
+
+    public bool IsExtract { get; set; }
+
+    public decimal Price { get; set; }
+    public int RoomCount { get; set; }
+    public decimal AreaInSquareMeters { get; set; }
+    public OfferType OfferType { get; set; }
+
+    public PropertyCategory PropertyCategory { get; set; }
+}
