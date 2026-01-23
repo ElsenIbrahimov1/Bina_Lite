@@ -3,7 +3,7 @@ using Domain.Enums;
 
 namespace Domain.Entities;
 
-public class PropertyAd : BaseEntity
+public class PropertyAd : BaseEntity<int>
 {
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;

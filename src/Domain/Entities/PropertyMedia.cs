@@ -2,7 +2,7 @@
 
 namespace Domain.Entities;
 
-public class PropertyMedia: BaseEntity
+public class PropertyMedia: BaseEntity<int>
 {
     public int PropertyAdId { get; set; }
     public PropertyAd PropertyAd { get; set; } 
