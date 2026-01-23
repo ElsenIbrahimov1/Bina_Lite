@@ -5,7 +5,7 @@ public interface IRepository<TEntity, TKey>
     where TEntity : BaseEntity<TKey>
     where TKey : notnull
 {
-    
+    IQueryable<TEntity> Query();
     TEntity? GetById(TKey id);
     IEnumerable<TEntity> GetAll();
 

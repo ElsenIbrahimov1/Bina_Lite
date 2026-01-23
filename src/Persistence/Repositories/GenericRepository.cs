@@ -18,6 +18,11 @@ public class GenericRepository<TEntity, TKey> : IRepository<TEntity, TKey>
         _table = _context.Set<TEntity>();
     }
 
+    public IQueryable<TEntity> Query()
+    {
+        return _table.AsQueryable();
+    }
+
     public TEntity GetById(TKey id)
     {
         return _table.Find(id);
