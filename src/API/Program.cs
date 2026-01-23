@@ -1,9 +1,14 @@
+using Microsoft.EntityFrameworkCore;
+using Persistence.Context;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddDbContext<BinaLiteDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
