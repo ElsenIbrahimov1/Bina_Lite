@@ -8,7 +8,7 @@ public class PropertyMediaConfiguration : IEntityTypeConfiguration<PropertyMedia
 {
     public void Configure(EntityTypeBuilder<PropertyMedia> builder)
     {
-        builder.ToTable("PropertyMedia");
+        builder.ToTable("PropertyMedias");
 
         builder.HasKey(x => x.Id);
 

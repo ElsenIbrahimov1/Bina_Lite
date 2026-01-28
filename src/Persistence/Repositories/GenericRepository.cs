@@ -18,24 +18,30 @@ public class GenericRepository<TEntity, TKey> : IRepository<TEntity, TKey>
         _table = _context.Set<TEntity>();
     }
 
-    public TEntity GetById(TKey id)
+    public IQueryable<TEntity> Query()
     {
-        return _table.Find(id);
+        return _table.AsQueryable();
     }
 
-    public IEnumerable<TEntity> GetAll()
+    public async Task<TEntity?> GetByIdAsync(TKey id, CancellationToken ct = default)
     {
-        return _table.ToList();
+     
+        return await _table.FindAsync(new object[] { id }, ct);
     }
 
-    public void Add(TEntity entity)
+    public async Task<List<TEntity>> GetAllAsync(CancellationToken ct = default)
     {
-        _table.Add(entity);
+        return await _table.ToListAsync(ct);
     }
 
-    public void AddRange(IEnumerable<TEntity> entities)
+    public async Task AddAsync(TEntity entity, CancellationToken ct = default)
     {
-        _table.AddRange(entities);
+        await _table.AddAsync(entity, ct);
+    }
+
+    public async Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken ct = default)
+    {
+        await _table.AddRangeAsync(entities, ct);
     }
 
     public void Update(TEntity entity)
@@ -48,17 +54,17 @@ public class GenericRepository<TEntity, TKey> : IRepository<TEntity, TKey>
         _table.Remove(entity);
     }
 
-    public void DeleteById(TKey id)
+    public async Task DeleteByIdAsync(TKey id, CancellationToken ct = default)
     {
-        var entity = _table.Find(id);
+        var entity = await GetByIdAsync(id, ct);
         if (entity is null)
             return;
 
         _table.Remove(entity);
     }
 
-    public void SaveChanges()
+    public async Task SaveChangesAsync(CancellationToken ct = default)
     {
-        _context.SaveChanges();
+        await _context.SaveChangesAsync(ct);
     }
 }
