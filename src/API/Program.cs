@@ -1,10 +1,12 @@
 using Application.Abstracts.Repositories;
 using Application.Abstracts.Services;
+using Application.Validations.PropertyAd;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
 using Persistence.Repositories;
 using Persistence.Services;
-
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,16 @@ builder.Services.AddScoped(typeof(IRepository<,>), typeof(GenericRepository<,>))
 builder.Services.AddScoped<IPropertyAdService, PropertyAdService>();
 builder.Services.AddScoped<IPropertyAdRepository, PropertyAdRepository>();
 
+
+builder.Services.AddScoped<IPropertyAdService, PropertyAdService>();
+builder.Services.AddScoped<IPropertyAdRepository, PropertyAdRepository>();
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
+
+builder.Services.AddValidatorsFromAssemblyContaining<CreatePropertyAdRequestValidator>();
 
 builder.Services.AddOpenApi();
 
