@@ -1,5 +1,8 @@
 ﻿using Application.Abstracts.Repositories;
+using Application.Abstracts.Services;
+using Application.DTOs.PropertyAd;
 using Domain.Entities;
+using Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
@@ -10,71 +13,58 @@ namespace API.Controllers;
 [ApiController]
 public class PropertyAdController : ControllerBase
 {
-    private readonly IRepository<PropertyAd, int> _repo;
+    private readonly IPropertyAdService _service;
 
-    public PropertyAdController(IRepository<PropertyAd, int> repo)
+    public PropertyAdController(IPropertyAdService service)
     {
-        _repo = repo;
+        _service = service;
     }
 
-    // GET: api/PropertyAd
     [HttpGet]
-    public IActionResult Get()
+    public async Task<ActionResult<List<GetALLPropertyAdResponse>>> Get(CancellationToken ct)
     {
-        var ads = _repo.Query()
-            .AsNoTracking()
-            .Include(x => x.Media)
-            .ToList();
-
-        return Ok(ads);
+        var result = await _service.GetAllPropertyAdsAsync(ct);
+        return Ok(result);
     }
 
-    // GET: api/PropertyAd/5
     [HttpGet("{id:int}")]
-    public IActionResult Get(int id)
+    public async Task<ActionResult<GetByIdPropertyAdResponse>> Get(int id, CancellationToken ct)
     {
-        var ad = _repo.Query()
-            .AsNoTracking()
-            .Include(x => x.Media)
-            .FirstOrDefault(x => x.Id == id);
-
-        if (ad is null) return NotFound();
-        return Ok(ad);
+        var result = await _service.GetPropertyAdByIdAsync(id, ct);
+        if (result is null) return NotFound();
+        return Ok(result);
     }
 
-    // POST: api/PropertyAd
     [HttpPost]
-    public IActionResult Post([FromBody] PropertyAd propertyAd)
+    public async Task<IActionResult> Create(
+        [FromBody] CreatePropertyAdRequest request,
+        CancellationToken ct)
     {
-        _repo.Add(propertyAd);
-        _repo.SaveChanges();
-
-        return CreatedAtAction(nameof(Get), new { id = propertyAd.Id }, propertyAd);
+        await _service.CreatePropertyAdAsync(request, ct);
+        return StatusCode(StatusCodes.Status201Created);
     }
 
-    // PUT: api/PropertyAd/5
+
     [HttpPut("{id:int}")]
-    public IActionResult Put(int id, [FromBody] PropertyAd propertyAd)
+    public async Task<IActionResult> Update(int id, [FromBody] UpdatePropertyAdRequest request, CancellationToken ct)
     {
-        if (id != propertyAd.Id)
-            return BadRequest("ID mismatch");
+        if (id != request.Id) return BadRequest("ID mismatch.");
 
-        _repo.Update(propertyAd);
-        _repo.SaveChanges();
-
-        return NoContent();
+        var ok = await _service.UpdatePropertyAdAsync(request, ct);
+        return ok ? NoContent() : NotFound();
     }
 
-    // DELETE: api/PropertyAd/5
     [HttpDelete("{id:int}")]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {
-        var ad = _repo.GetById(id);
-        if (ad is null) return NotFound();
+        var ok = await _service.DeletePropertyAdAsync(id, ct);
+        return ok ? NoContent() : NotFound();
+    }
 
-        _repo.Delete(ad);
-        _repo.SaveChanges();
-
-        return NoContent();
+    [HttpGet("category/{category}")]
+    public async Task<IActionResult> GetByCategory(PropertyCategory category, CancellationToken ct)
+    {
+        var result = await _service.GetPropertyAdsByCategoryAsync(category, ct);
+        return Ok(result);
     }
 }

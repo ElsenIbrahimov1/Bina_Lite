@@ -6,21 +6,17 @@ public interface IRepository<TEntity, TKey>
     where TKey : notnull
 {
     IQueryable<TEntity> Query();
-    TEntity? GetById(TKey id);
-    IEnumerable<TEntity> GetAll();
 
-    
-    void Add(TEntity entity);
-    void AddRange(IEnumerable<TEntity> entities);
+    Task<TEntity?> GetByIdAsync(TKey id, CancellationToken ct = default);
+    Task<List<TEntity>> GetAllAsync(CancellationToken ct = default);
 
-    
+    Task AddAsync(TEntity entity, CancellationToken ct = default);
+    Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken ct = default);
+
     void Update(TEntity entity);
-
-    
     void Delete(TEntity entity);
-    void DeleteById(TKey id);
+    Task DeleteByIdAsync(TKey id, CancellationToken ct = default);
 
-    
-    void SaveChanges();
+    Task SaveChangesAsync(CancellationToken ct = default);
 }
 
