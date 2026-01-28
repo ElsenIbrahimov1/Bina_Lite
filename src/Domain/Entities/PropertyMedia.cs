@@ -1,11 +1,14 @@
 ﻿using Domain.Entities.Common;
+using System.Text.Json.Serialization;
 
 namespace Domain.Entities;
 
 public class PropertyMedia: BaseEntity<int>
 {
     public int PropertyAdId { get; set; }
-    public PropertyAd PropertyAd { get; set; } 
+
+    [JsonIgnore]
+    public PropertyAd? PropertyAd { get; set; } 
     public string MediaUrl { get; set; }
     public string MediaType { get; set; } 
 
