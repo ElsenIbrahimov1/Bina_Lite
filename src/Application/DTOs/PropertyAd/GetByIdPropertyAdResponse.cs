@@ -1,4 +1,4 @@
-﻿using Domain.Entities;
+﻿using Application.DTOs.PropertyAdMedia;
 using Domain.Enums;
 
 namespace Application.DTOs.PropertyAd;
@@ -9,7 +9,7 @@ public class GetByIdPropertyAdResponse
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
 
-    public ICollection<PropertyMedia> Media { get; set; } = [];
+    public ICollection<PropertyMediaDto> Media { get; set; } = [];
 
     public bool IsMortgage { get; set; }
 
