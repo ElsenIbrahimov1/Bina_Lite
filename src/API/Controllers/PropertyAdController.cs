@@ -23,46 +23,36 @@ public class PropertyAdController : ControllerBase
 
     [HttpGet]
     public async Task<IActionResult> Get(CancellationToken ct)
-    {
-        BaseResponse<List<GetALLPropertyAdResponse>> response = await _service.GetAllPropertyAdsAsync(ct);
-        return StatusCode(response.StatusCode, response);
-    }
+        => Ok(await _service.GetAllPropertyAdsAsync(ct));
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> Get(int id, CancellationToken ct)
-    {
-        BaseResponse<GetByIdPropertyAdResponse> response = await _service.GetPropertyAdByIdAsync(id, ct);
-        return StatusCode(response.StatusCode, response);
-    }
+        => Ok(await _service.GetPropertyAdByIdAsync(id, ct));
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreatePropertyAdRequest request, CancellationToken ct)
     {
-        BaseResponse response = await _service.CreatePropertyAdAsync(request, ct);
-        return StatusCode(response.StatusCode, response);
+        await _service.CreatePropertyAdAsync(request, ct);
+        return StatusCode(StatusCodes.Status201Created);
     }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdatePropertyAdRequest request, CancellationToken ct)
     {
-        if (id != request.Id)
-            return BadRequest(BaseResponse.Fail("ID mismatch.", 400));
+        if (id != request.Id) return BadRequest("ID mismatch.");
 
-        BaseResponse response = await _service.UpdatePropertyAdAsync(request, ct);
-        return StatusCode(response.StatusCode, response);
+        await _service.UpdatePropertyAdAsync(request, ct);
+        return NoContent();
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {
-        BaseResponse response = await _service.DeletePropertyAdAsync(id, ct);
-        return StatusCode(response.StatusCode, response);
+        await _service.DeletePropertyAdAsync(id, ct);
+        return NoContent();
     }
 
     [HttpGet("category/{category}")]
     public async Task<IActionResult> GetByCategory(PropertyCategory category, CancellationToken ct)
-    {
-        BaseResponse<List<GetALLPropertyAdResponse>> response = await _service.GetPropertyAdsByCategoryAsync(category, ct);
-        return StatusCode(response.StatusCode, response);
-    }
+        => Ok(await _service.GetPropertyAdsByCategoryAsync(category, ct));
 }

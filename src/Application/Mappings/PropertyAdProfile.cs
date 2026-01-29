@@ -1,7 +1,7 @@
-﻿using Application.DTOs.PropertyAd;
+﻿using Application.DTOs.PropertyAdMedia;
+using Application.DTOs.PropertyAd;
 using AutoMapper;
 using Domain.Entities;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Application.Mappings;
 
@@ -16,6 +16,8 @@ public class PropertyAdProfile : Profile
 
         CreateMap<PropertyAd, GetALLPropertyAdResponse>();
         CreateMap<PropertyAd, GetByIdPropertyAdResponse>();
+
+        CreateMap<PropertyMedia, PropertyMediaDto>();
 
         CreateMap<UpdatePropertyAdRequest, PropertyAd>()
             .ForMember(d => d.Title, o => o.MapFrom(s => (s.Title ?? string.Empty).Trim()))
