@@ -49,6 +49,7 @@ public class PropertyAdConfiguration : IEntityTypeConfiguration<PropertyAd>
         builder.Property(x => x.UpdatedAt)
                .IsRequired(false);
 
+
         // Relationships
         builder.HasMany(x => x.Media)
                .WithOne(x => x.PropertyAd)

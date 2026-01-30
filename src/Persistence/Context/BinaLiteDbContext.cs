@@ -15,11 +15,18 @@ public class BinaLiteDbContext: DbContext
 
     public DbSet<PropertyMedia> PropertyMedias { get; set; }
 
+    public DbSet<City> Cities { get; set; }
+
+
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
        
         modelBuilder.ApplyConfiguration(new PropertyAdConfiguration());
         modelBuilder.ApplyConfiguration(new PropertyMediaConfiguration());
+        modelBuilder.ApplyConfiguration(new CityConfiguration());
+
+
 
         base.OnModelCreating(modelBuilder);
     }
