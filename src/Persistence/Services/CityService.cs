@@ -75,27 +75,32 @@ public sealed class CityService : ICityService
 
     public async Task<List<GetAllCityResponse>> GetAllCitiesAsync(CancellationToken ct = default)
     {
-        return await _repository.Query()
+        var cities = await _repository.Query()
             .AsNoTracking()
+            .Include(x => x.Districts)
             .OrderBy(x => x.Name)
-            .ProjectTo<GetAllCityResponse>(_mapper.ConfigurationProvider)
             .ToListAsync(ct);
+
+        return cities.Select(x => _mapper.Map<GetAllCityResponse>(x)).ToList();
     }
+
 
     public async Task<GetByIdCityResponse> GetCityByIdAsync(int id, CancellationToken ct = default)
     {
         if (id <= 0)
             throw new BadRequestException("Invalid id.");
 
-        var entity = await _repository.Query()
+        var city = await _repository.Query()
             .AsNoTracking()
+            .Include(x => x.Districts)
             .FirstOrDefaultAsync(x => x.Id == id, ct);
 
-        if (entity is null)
+        if (city is null)
             throw new NotFoundException("City not found.");
 
-        return _mapper.Map<GetByIdCityResponse>(entity);
+        return _mapper.Map<GetByIdCityResponse>(city);
     }
+
 
     public async Task UpdateCityAsync(UpdateCityRequest request, CancellationToken ct = default)
     {

@@ -17,6 +17,9 @@ public class BinaLiteDbContext: DbContext
 
     public DbSet<City> Cities { get; set; }
 
+    public DbSet<District> Districts { get; set; }
+
+
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -25,6 +28,8 @@ public class BinaLiteDbContext: DbContext
         modelBuilder.ApplyConfiguration(new PropertyAdConfiguration());
         modelBuilder.ApplyConfiguration(new PropertyMediaConfiguration());
         modelBuilder.ApplyConfiguration(new CityConfiguration());
+        modelBuilder.ApplyConfiguration(new DistrictConfiguration());
+
 
 
 

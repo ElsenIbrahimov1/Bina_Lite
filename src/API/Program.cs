@@ -28,6 +28,10 @@ builder.Services.AddScoped<IPropertyAdRepository, PropertyAdRepository>();
 builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<ICityRepository, CityRepository>();
 
+builder.Services.AddScoped<IDistrictService, DistrictService>();
+builder.Services.AddScoped<IDistrictRepository, DistrictRepository>();
+
+
 
 builder.Services.AddTransient<GlobalExceptionMiddleware>();
 
