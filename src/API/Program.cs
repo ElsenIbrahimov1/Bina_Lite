@@ -8,6 +8,8 @@ using Persistence.Context;
 using Persistence.Repositories;
 using Persistence.Services;
 using API.MiddleWares;
+using Application.Validations.City; 
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,13 +25,22 @@ builder.Services.AddScoped(typeof(IRepository<,>), typeof(GenericRepository<,>))
 builder.Services.AddScoped<IPropertyAdService, PropertyAdService>();
 builder.Services.AddScoped<IPropertyAdRepository, PropertyAdRepository>();
 
+builder.Services.AddScoped<ICityService, CityService>();
+builder.Services.AddScoped<ICityRepository, CityRepository>();
+
+builder.Services.AddScoped<IDistrictService, DistrictService>();
+builder.Services.AddScoped<IDistrictRepository, DistrictRepository>();
+
+
+
 builder.Services.AddTransient<GlobalExceptionMiddleware>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
-builder.Services.AddValidatorsFromAssemblyContaining<CreatePropertyAdRequestValidator>();
+builder.Services.AddValidatorsFromAssembly(typeof(Application.Validations.PropertyAd.CreatePropertyAdRequestValidator).Assembly);
+
 
 builder.Services.AddOpenApi();
 
