@@ -1,14 +1,16 @@
+using API.MiddleWares;
 using Application.Abstracts.Repositories;
 using Application.Abstracts.Services;
+using Application.Validations.City; 
 using Application.Validations.PropertyAd;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Infrastucture.Extensions;
+using Infrastucture.Services;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
 using Persistence.Repositories;
 using Persistence.Services;
-using API.MiddleWares;
-using Application.Validations.City; 
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,10 +22,17 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<BinaLiteDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddMinioStorage(builder.Configuration);
+builder.Services.AddScoped<IFileStorageService, MinioFileStorageService>();
+
+
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(GenericRepository<,>));
 
 builder.Services.AddScoped<IPropertyAdService, PropertyAdService>();
 builder.Services.AddScoped<IPropertyAdRepository, PropertyAdRepository>();
+
+builder.Services.AddScoped<IPropertyMediaRepository, PropertyMediaRepository>();
+
 
 builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<ICityRepository, CityRepository>();
