@@ -11,6 +11,7 @@ public class GetByIdPropertyAdResponse
 
     public ICollection<PropertyMediaDto> Media { get; set; } = [];
 
+
     public bool IsMortgage { get; set; }
 
     public bool IsExtract { get; set; }

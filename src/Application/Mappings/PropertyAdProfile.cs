@@ -19,6 +19,7 @@ public class PropertyAdProfile : Profile
 
         CreateMap<PropertyMedia, PropertyMediaDto>();
 
+
         CreateMap<UpdatePropertyAdRequest, PropertyAd>()
             .ForMember(d => d.Title, o => o.MapFrom(s => (s.Title ?? string.Empty).Trim()))
             .ForMember(d => d.Description, o => o.MapFrom(s => (s.Description ?? string.Empty).Trim()))
