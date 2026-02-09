@@ -12,37 +12,27 @@ public class PropertyMediaConfiguration : IEntityTypeConfiguration<PropertyMedia
 
         builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.MediaUrl)
-               .IsRequired()
-               .HasMaxLength(500);
-
-        builder.Property(x => x.MediaType)
-               .IsRequired()
-               .HasMaxLength(50);
+        builder.Property(x => x.ObjectKey)
+            .IsRequired()
+            .HasMaxLength(500);
 
         builder.Property(x => x.Order)
-               .IsRequired();
+            .IsRequired();
 
         builder.Property(x => x.CreatedAt)
-               .IsRequired();
+            .IsRequired();
 
         builder.Property(x => x.UpdatedAt)
-               .IsRequired(false);
+            .IsRequired(false);
 
-        // Relationship
         builder.HasOne(x => x.PropertyAd)
-               .WithMany(x => x.Media)
-               .HasForeignKey(x => x.PropertyAdId)
-               .OnDelete(DeleteBehavior.Cascade);
+            .WithMany(x => x.Media)
+            .HasForeignKey(x => x.PropertyAdId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-        // Indexes
         builder.HasIndex(x => x.PropertyAdId);
 
-        builder.HasIndex(x => new
-        {
-            x.PropertyAdId,
-            x.Order
-        })
-        .IsUnique();
+        builder.HasIndex(x => new { x.PropertyAdId, x.Order })
+            .IsUnique();
     }
 }
