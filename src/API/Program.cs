@@ -1,71 +1,13 @@
-using API.MiddleWares;
-using Application.Abstracts.Repositories;
-using Application.Abstracts.Services;
-using Application.Validations.City; 
-using Application.Validations.PropertyAd;
-using FluentValidation;
-using FluentValidation.AspNetCore;
-using Infrastucture.Extensions;
-using Infrastucture.Services;
+using API.Extensions;
 using Microsoft.EntityFrameworkCore;
-using Persistence.Context;
-using Persistence.Repositories;
-using Persistence.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-builder.Services.AddDbContext<BinaLiteDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddMinioStorage(builder.Configuration);
-builder.Services.AddScoped<IFileStorageService, MinioFileStorageService>();
-
-
-builder.Services.AddScoped(typeof(IRepository<,>), typeof(GenericRepository<,>));
-
-builder.Services.AddScoped<IPropertyAdService, PropertyAdService>();
-builder.Services.AddScoped<IPropertyAdRepository, PropertyAdRepository>();
-
-builder.Services.AddScoped<IPropertyMediaRepository, PropertyMediaRepository>();
-
-
-builder.Services.AddScoped<ICityService, CityService>();
-builder.Services.AddScoped<ICityRepository, CityRepository>();
-
-builder.Services.AddScoped<IDistrictService, DistrictService>();
-builder.Services.AddScoped<IDistrictRepository, DistrictRepository>();
-
-
-
-builder.Services.AddTransient<GlobalExceptionMiddleware>();
-
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddFluentValidationClientsideAdapters();
-builder.Services.AddValidatorsFromAssembly(typeof(Application.Validations.PropertyAd.CreatePropertyAdRequestValidator).Assembly);
-
-
-builder.Services.AddOpenApi();
+builder.Services.AddApiServices(builder.Configuration);
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseApiPipeline();
 
-app.UseMiddleware<GlobalExceptionMiddleware>();
-
-app.UseHttpsRedirection();
-app.UseAuthorization();
-
-app.MapControllers();
 app.Run();
