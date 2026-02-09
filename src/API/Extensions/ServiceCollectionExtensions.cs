@@ -1,11 +1,14 @@
 ﻿using API.MiddleWares;
+using API.Options;
 using Application.Abstracts.Repositories;
 using Application.Abstracts.Services;
+using Application.Options;
 using Domain.Entities;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Infrastucture.Extensions;
 using Infrastucture.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
@@ -45,6 +48,18 @@ public static class ServiceCollectionExtensions
         .AddSignInManager()
         .AddEntityFrameworkStores<BinaLiteDbContext>()
         .AddDefaultTokenProviders();
+
+        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer();
+
+        services.ConfigureOptions<ConfigureJwtBearerOptions>();
+
+        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+        services.AddScoped<IAuthService, AuthService>();
+
+
 
         services.AddScoped<IPropertyAdService, PropertyAdService>();
         services.AddScoped<IPropertyAdRepository, PropertyAdRepository>();
