@@ -14,10 +14,14 @@ public class BinaLiteDbContext : IdentityDbContext<AppUser>
     public DbSet<City> Cities { get; set; }
     public DbSet<District> Districts { get; set; }
 
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
+
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder); // IMPORTANT for Identity tables
 
+        modelBuilder.ApplyConfiguration(new RefreshTokenConfiguration());
         modelBuilder.ApplyConfiguration(new PropertyAdConfiguration());
         modelBuilder.ApplyConfiguration(new PropertyMediaConfiguration());
         modelBuilder.ApplyConfiguration(new CityConfiguration());

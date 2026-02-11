@@ -4,5 +4,5 @@ namespace Application.Abstracts.Services;
 
 public interface IJwtTokenGenerator
 {
-    string GenerateToken(AppUser user);
+    string GenerateAccessToken(AppUser user);
 }

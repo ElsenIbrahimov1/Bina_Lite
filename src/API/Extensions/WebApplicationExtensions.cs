@@ -8,7 +8,6 @@ public static class WebApplicationExtensions
     {
         if (app.Environment.IsDevelopment())
         {
-            app.MapOpenApi();
             app.UseSwagger();
             app.UseSwaggerUI();
         }
@@ -16,8 +15,8 @@ public static class WebApplicationExtensions
         app.UseMiddleware<GlobalExceptionMiddleware>();
 
         app.UseHttpsRedirection();
-        app.UseAuthentication();
 
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllers();

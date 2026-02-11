@@ -11,32 +11,49 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public sealed class AuthController : ControllerBase
 {
-    private readonly IAuthService _auth;
+    private readonly IAuthService _authService;
 
-    public AuthController(IAuthService auth)
+    public AuthController(IAuthService authService)
     {
-        _auth = auth;
+        _authService = authService;
     }
 
     [HttpPost("register")]
     [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken ct)
     {
-        var (success, error) = await _auth.RegisterAsync(request, ct);
+        var (success, error) = await _authService.RegisterAsync(request, ct);
+
         if (!success)
             return BadRequest(BaseResponse.Fail(error ?? "Register failed."));
 
-        return Ok(BaseResponse.Ok("Registered successfully."));
+        return Ok(BaseResponse.Ok("User registered successfully."));
     }
 
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken ct)
     {
-        var token = await _auth.LoginAsync(request, ct);
-        if (token is null)
-            return Unauthorized(BaseResponse<string>.Fail("Invalid login or password.", 401));
+        var tokenResponse = await _authService.LoginAsync(request, ct);
 
-        return Ok(BaseResponse<string>.Ok(token, "OK"));
+        if (tokenResponse is null)
+            return Unauthorized(BaseResponse<TokenResponse>.Fail("Invalid login or password.", 401));
+
+        return Ok(BaseResponse<TokenResponse>.Ok(tokenResponse));
+    }
+
+    [HttpPost("refresh")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(request.RefreshToken))
+            return BadRequest(BaseResponse.Fail("RefreshToken is required."));
+
+        var tokenResponse = await _authService.RefreshTokenAsync(request.RefreshToken, ct);
+
+        if (tokenResponse is null)
+            return Unauthorized(BaseResponse<TokenResponse>.Fail("Invalid or expired refresh token.", 401));
+
+        return Ok(BaseResponse<TokenResponse>.Ok(tokenResponse));
     }
 }

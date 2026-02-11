@@ -8,11 +8,11 @@ namespace API.Options;
 
 public sealed class ConfigureJwtBearerOptions : IConfigureOptions<JwtBearerOptions>
 {
-    private readonly JwtOptions _opt;
+    private readonly JwtOptions _jwt;
 
-    public ConfigureJwtBearerOptions(IOptions<JwtOptions> opt)
+    public ConfigureJwtBearerOptions(IOptions<JwtOptions> jwtOptions)
     {
-        _opt = opt.Value;
+        _jwt = jwtOptions.Value;
     }
 
     public void Configure(JwtBearerOptions options)
@@ -20,13 +20,15 @@ public sealed class ConfigureJwtBearerOptions : IConfigureOptions<JwtBearerOptio
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
+            ValidIssuer = _jwt.Issuer,
 
-            ValidIssuer = _opt.Issuer,
-            ValidAudience = _opt.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_opt.Secret)),
+            ValidateAudience = true,
+            ValidAudience = _jwt.Audience,
+
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Secret)),
+
+            ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
     }

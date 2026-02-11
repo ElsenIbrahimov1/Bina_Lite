@@ -13,12 +13,12 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
 {
     private readonly JwtOptions _opt;
 
-    public JwtTokenGenerator(IOptions<JwtOptions> opt)
+    public JwtTokenGenerator(IOptions<JwtOptions> options)
     {
-        _opt = opt.Value;
+        _opt = options.Value;
     }
 
-    public string GenerateToken(AppUser user)
+    public string GenerateAccessToken(AppUser user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_opt.Secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -26,9 +26,9 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, user.Id),
-            new(JwtRegisteredClaimNames.Email, user.Email ?? ""),
+            new(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new("fullName", user.FullName ?? "")
+            new("fullName", user.FullName ?? string.Empty),
         };
 
         var token = new JwtSecurityToken(
@@ -36,7 +36,8 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
             audience: _opt.Audience,
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(_opt.ExpirationMinutes),
-            signingCredentials: creds);
+            signingCredentials: creds
+        );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
