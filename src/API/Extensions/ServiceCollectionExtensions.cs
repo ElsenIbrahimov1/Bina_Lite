@@ -11,7 +11,7 @@ using Infrastucture.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Persistence.Context;
 using Persistence.Repositories;
 using Persistence.Services;
@@ -24,8 +24,6 @@ public static class ServiceCollectionExtensions
     {
         services.AddControllers();
         services.AddEndpointsApiExplorer();
-
-        // ✅ Swagger + JWT Bearer Authorize button (Swashbuckle 10.1.0 compatible)
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo
@@ -44,20 +42,10 @@ public static class ServiceCollectionExtensions
                 Description = "Enter: Bearer {your JWT token}"
             });
 
-            c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
+            c.AddSecurityRequirement(document => new()
             {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
+                [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+            });
         });
 
 
