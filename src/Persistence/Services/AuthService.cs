@@ -1,6 +1,7 @@
 ﻿using Application.Abstracts.Services;
 using Application.DTOs.Auth;
 using Application.Options;
+using Domain.Constants;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
@@ -38,16 +39,18 @@ public sealed class AuthService : IAuthService
         {
             UserName = request.UserName,
             Email = request.Email,
-            FullName = request.FullName
+            FullName = request.FullName,
+            EmailConfirmed = true
         };
 
         var result = await _userManager.CreateAsync(user, request.Password);
-
         if (!result.Succeeded)
-        {
-            var error = string.Join("; ", result.Errors.Select(e => e.Description));
-            return (false, error);
-        }
+            return (false, string.Join("; ", result.Errors.Select(e => e.Description)));
+
+        // ✅ default role User
+        var roleResult = await _userManager.AddToRoleAsync(user, RoleNames.User);
+        if (!roleResult.Succeeded)
+            return (false, string.Join("; ", roleResult.Errors.Select(e => e.Description)));
 
         return (true, null);
     }
@@ -57,13 +60,10 @@ public sealed class AuthService : IAuthService
         var user = await _userManager.FindByEmailAsync(request.Login)
                    ?? await _userManager.FindByNameAsync(request.Login);
 
-        if (user is null)
-            return null;
+        if (user is null) return null;
 
-        var check = await _signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: false);
-
-        if (!check.Succeeded)
-            return null;
+        var check = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+        if (!check.Succeeded) return null;
 
         return await BuildTokenResponseAsync(user, ct);
     }
@@ -71,22 +71,23 @@ public sealed class AuthService : IAuthService
     public async Task<TokenResponse?> RefreshTokenAsync(string refreshToken, CancellationToken ct = default)
     {
         var user = await _refreshTokenService.ValidateAndConsumeAsync(refreshToken, ct);
-
-        if (user is null)
-            return null;
+        if (user is null) return null;
 
         return await BuildTokenResponseAsync(user, ct);
     }
 
     private async Task<TokenResponse> BuildTokenResponseAsync(AppUser user, CancellationToken ct)
     {
-        var accessToken = _jwtGenerator.GenerateAccessToken(user);
-        var newRefreshToken = await _refreshTokenService.CreateAsync(user, ct);
+        var roles = await _userManager.GetRolesAsync(user);
+
+        var accessToken = _jwtGenerator.GenerateAccessToken(user, roles);
+
+        var newRefresh = await _refreshTokenService.CreateAsync(user, ct);
 
         return new TokenResponse
         {
             AccessToken = accessToken,
-            RefreshToken = newRefreshToken,
+            RefreshToken = newRefresh,
             ExpiresAtUtc = DateTime.UtcNow.AddMinutes(_jwt.ExpirationMinutes)
         };
     }

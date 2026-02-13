@@ -1,4 +1,9 @@
 ﻿using API.MiddleWares;
+using Application.Options;
+using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+using Persistence.Data;
 
 namespace API.Extensions;
 
@@ -12,7 +17,7 @@ public static class WebApplicationExtensions
             app.UseSwaggerUI();
         }
 
-        app.UseMiddleware<GlobalExceptionMiddleware>();
+        app.UseMiddleware<API.MiddleWares.GlobalExceptionMiddleware>();
 
         app.UseHttpsRedirection();
 
@@ -21,6 +26,24 @@ public static class WebApplicationExtensions
 
         app.MapControllers();
 
+        // ✅ Seed roles + admin
+        SeedAsync(app).GetAwaiter().GetResult();
+
         return app;
+    }
+
+    private static async Task SeedAsync(WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        await RoleSeeder.SeedAsync(roleManager);
+
+        if (app.Environment.IsDevelopment())
+        {
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+            var seedOptions = scope.ServiceProvider.GetRequiredService<IOptions<SeedOptions>>();
+            await AdminSeeder.SeedAsync(userManager, seedOptions);
+        }
     }
 }

@@ -3,8 +3,10 @@ using Application.Abstracts.Services;
 using Application.DTOs.PropertyAd;
 using Application.DTOs.PropertyAdMedia;
 using Application.Shared.Helpers.Responses;
+using Domain.Constants;
 using Domain.Entities;
 using Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
@@ -40,6 +42,8 @@ public class PropertyAdController : ControllerBase
     public async Task<IActionResult> Get(int id, CancellationToken ct)
         => Ok(await _service.GetPropertyAdByIdAsync(id, ct));
 
+
+    [Authorize(Policy = Policies.ManageProperties)]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreatePropertyAdRequest request, CancellationToken ct)
     {
@@ -47,6 +51,8 @@ public class PropertyAdController : ControllerBase
         return StatusCode(StatusCodes.Status201Created);
     }
 
+
+    [Authorize(Policy = Policies.ManageProperties)]
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdatePropertyAdRequest request, CancellationToken ct)
     {
@@ -56,6 +62,8 @@ public class PropertyAdController : ControllerBase
         return NoContent();
     }
 
+
+    [Authorize(Policy = Policies.ManageProperties)]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {
@@ -69,6 +77,7 @@ public class PropertyAdController : ControllerBase
 
     // --------- MEDIA (MinIO) ---------
 
+    [Authorize(Policy = Policies.ManageProperties)]
     [HttpPost("{propertyAdId:int}/media")]
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> UploadMedia(
@@ -116,6 +125,8 @@ public class PropertyAdController : ControllerBase
         });
     }
 
+
+    [Authorize(Policy = Policies.ManageProperties)]
     [HttpDelete("media/{mediaId:int}")]
     public async Task<IActionResult> DeleteMedia(int mediaId, CancellationToken ct)
     {

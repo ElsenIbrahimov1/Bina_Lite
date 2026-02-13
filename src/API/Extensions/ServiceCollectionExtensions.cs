@@ -11,10 +11,12 @@ using Infrastucture.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Persistence.Context;
 using Persistence.Repositories;
 using Persistence.Services;
+using System.Text;
 
 namespace API.Extensions;
 
@@ -24,6 +26,8 @@ public static class ServiceCollectionExtensions
     {
         services.AddControllers();
         services.AddEndpointsApiExplorer();
+
+        // ✅ Swagger + JWT Authorize button (your OpenApiSecuritySchemeReference approach)
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo
@@ -47,7 +51,6 @@ public static class ServiceCollectionExtensions
                 [new OpenApiSecuritySchemeReference("Bearer", document)] = []
             });
         });
-
 
         // ✅ DbContext
         services.AddDbContext<BinaLiteDbContext>(options =>
@@ -79,15 +82,41 @@ public static class ServiceCollectionExtensions
         .AddSignInManager()
         .AddDefaultTokenProviders();
 
-        // ✅ JWT options
+        // ✅ Options
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        services.Configure<SeedOptions>(configuration.GetSection(SeedOptions.SectionName));
 
-        // ✅ AuthN/AuthZ
+        // ✅ AuthN (configure inline => avoids "signature key was not found")
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer();
+            .AddJwtBearer(options =>
+            {
+                var jwt = configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()!;
 
-        services.ConfigureOptions<ConfigureJwtBearerOptions>();
-        services.AddAuthorization();
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = jwt.Issuer,
+
+                    ValidateAudience = true,
+                    ValidAudience = jwt.Audience,
+
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Secret)),
+
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
+        // ✅ Policies (AddAuthorization ONLY ONCE)
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy(Domain.Constants.Policies.ManageCities,
+                p => p.RequireRole(Domain.Constants.RoleNames.Admin));
+
+            options.AddPolicy(Domain.Constants.Policies.ManageProperties,
+                p => p.RequireAuthenticatedUser());
+        });
 
         // ✅ Refresh Token DI
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
@@ -118,8 +147,6 @@ public static class ServiceCollectionExtensions
         services.AddFluentValidationAutoValidation();
         services.AddFluentValidationClientsideAdapters();
         services.AddValidatorsFromAssembly(typeof(Application.Validations.PropertyAd.CreatePropertyAdRequestValidator).Assembly);
-
-        
 
         return services;
     }

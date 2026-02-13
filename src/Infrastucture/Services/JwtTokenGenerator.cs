@@ -9,6 +9,7 @@ using System.Text;
 
 namespace Infrastucture.Services;
 
+
 public sealed class JwtTokenGenerator : IJwtTokenGenerator
 {
     private readonly JwtOptions _opt;
@@ -18,7 +19,7 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
         _opt = options.Value;
     }
 
-    public string GenerateAccessToken(AppUser user)
+    public string GenerateAccessToken(AppUser user, IEnumerable<string> roles)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_opt.Secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -31,13 +32,15 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
             new("fullName", user.FullName ?? string.Empty),
         };
 
+        foreach (var role in roles)
+            claims.Add(new Claim(ClaimTypes.Role, role));
+
         var token = new JwtSecurityToken(
             issuer: _opt.Issuer,
             audience: _opt.Audience,
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(_opt.ExpirationMinutes),
-            signingCredentials: creds
-        );
+            signingCredentials: creds);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
