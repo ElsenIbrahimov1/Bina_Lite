@@ -25,12 +25,13 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new List<Claim>
-        {
-            new(JwtRegisteredClaimNames.Sub, user.Id),
-            new(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new("fullName", user.FullName ?? string.Empty),
-        };
+            {
+                new(JwtRegisteredClaimNames.Sub, user.Id),
+                new(ClaimTypes.NameIdentifier, user.Id),  // Add this line here
+                new(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new("fullName", user.FullName ?? string.Empty),
+            };
 
         foreach (var role in roles)
             claims.Add(new Claim(ClaimTypes.Role, role));

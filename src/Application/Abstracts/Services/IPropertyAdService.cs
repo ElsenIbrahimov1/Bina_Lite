@@ -6,7 +6,7 @@ namespace Application.Abstracts.Services;
 
 public interface IPropertyAdService
 {
-    Task CreatePropertyAdAsync(CreatePropertyAdRequest request, CancellationToken ct = default);
+    Task CreatePropertyAdAsync(CreatePropertyAdRequest request, string userId, CancellationToken ct = default);
 
     Task<List<GetALLPropertyAdResponse>> GetAllPropertyAdsAsync(CancellationToken ct = default);
 

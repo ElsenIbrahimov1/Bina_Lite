@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
+using System.Security.Claims;
 
 namespace API.Controllers;
 
@@ -47,7 +48,11 @@ public class PropertyAdController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreatePropertyAdRequest request, CancellationToken ct)
     {
-        await _service.CreatePropertyAdAsync(request, ct);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
+            return Unauthorized("UserId not found in token.");
+
+        await _service.CreatePropertyAdAsync(request, userId, ct);
         return StatusCode(StatusCodes.Status201Created);
     }
 

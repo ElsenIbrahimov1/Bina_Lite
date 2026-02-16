@@ -50,6 +50,17 @@ public class PropertyAdConfiguration : IEntityTypeConfiguration<PropertyAd>
                .IsRequired(false);
 
 
+        builder.Property(x => x.CreatedByUserId)
+    .IsRequired()
+    .HasMaxLength(450); // Identity user id length
+
+        builder.HasOne(x => x.CreatedByUser)
+            .WithMany() // we are not adding collection in AppUser
+            .HasForeignKey(x => x.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasIndex(x => x.CreatedByUserId);
+
         // Relationships
         builder.HasMany(x => x.Media)
                .WithOne(x => x.PropertyAd)

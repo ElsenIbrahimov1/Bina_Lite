@@ -10,6 +10,8 @@ public class PropertyAd : BaseEntity<int>
 
     public ICollection<PropertyMedia> Media { get; set; } = [];
 
+    public string CreatedByUserId { get; set; } = string.Empty;
+    public AppUser CreatedByUser { get; set; } = null!;
 
     public bool IsMortgage { get; set; }
 
