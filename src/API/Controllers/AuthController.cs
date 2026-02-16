@@ -56,4 +56,19 @@ public sealed class AuthController : ControllerBase
 
         return Ok(BaseResponse<TokenResponse>.Ok(tokenResponse));
     }
+
+    [AllowAnonymous]
+    [HttpGet("confirm-email")]
+    public async Task<IActionResult> ConfirmEmail([FromQuery] string userId, [FromQuery] string token, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(token))
+            return BadRequest("userId and token are required.");
+
+        var ok = await _authService.ConfirmEmailAsync(userId, token, ct);
+
+        if (!ok)
+            return BadRequest("Token is invalid or expired.");
+
+        return Ok("Email confirmed.");
+    }
 }

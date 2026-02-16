@@ -86,6 +86,9 @@ public static class ServiceCollectionExtensions
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.Configure<SeedOptions>(configuration.GetSection(SeedOptions.SectionName));
 
+        services.Configure<EmailOptions>(configuration.GetSection(EmailOptions.SectionName));
+        services.AddScoped<IEmailSender, SmtpEmailSender>();
+
         // ✅ AuthN (configure inline => avoids "signature key was not found")
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
